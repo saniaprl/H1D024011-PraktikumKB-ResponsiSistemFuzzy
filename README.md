@@ -4,6 +4,18 @@ Sistem penilaian risiko burnout mahasiswa berbasis **Logika Fuzzy Mamdani** deng
 
 ---
 
+## 🗒️ Identitas
+
+**Nama:** Sani Aprillia Anjani 
+
+**NIM:** H1D024011 
+
+**SHIFT AWAL:** H
+
+**SHIFT AKHIR:** E
+
+---
+
 ## 🧠 Tentang Sistem
 
 BurnoutCheck menggunakan metode **Fuzzy Mamdani** untuk mendeteksi dini risiko burnout akademik mahasiswa berdasarkan 4 variabel input.
