@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BurnoutCheck — Sistem Fuzzy Risiko Burnout Mahasiswa</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --p50:  #EEEDFE;
+    --p100: #CECBF6;
+    --p200: #AFA9EC;
+    --p400: #7F77DD;
+    --p600: #534AB7;
+    --p800: #3C3489;
+    --p900: #26215C;
+    --white: #FFFFFF;
+    --off:  #F7F6FE;
+    --gray: #888;
+    --text: #26215C;
+    --muted: #6B65A0;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--white);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .hero {
+    background: linear-gradient(135deg, var(--p800) 0%, var(--p600) 50%, var(--p400) 100%);
+    padding: 4rem 2rem 3.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 80% at 20% 30%, rgba(255,255,255,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 80% 70%, rgba(255,255,255,0.05) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .hero-tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    color: var(--p100);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.35rem 1rem;
+    border-radius: 100px;
+    border: 1px solid rgba(255,255,255,0.2);
+    margin-bottom: 1.5rem;
+  }
+
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    color: var(--white);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--p100);
+  }
+
+  .hero p {
+    color: var(--p100);
+    font-size: 1rem;
+    font-weight: 300;
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  .dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 2.5rem;
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+  }
+  .dot.active { background: var(--white); }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  .card {
+    background: var(--white);
+    border: 1px solid var(--p50);
+    border-radius: 20px;
+    padding: 2.5rem;
+    margin-top: -1.5rem;
+    box-shadow: 0 4px 32px rgba(83,74,183,0.08);
+  }
+
+  .card-section-title {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--p400);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--p50);
+  }
+
+  .sliders-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.8rem 2.5rem;
+    margin-bottom: 2rem;
+  }
+
+  @media (max-width: 560px) {
+    .sliders-grid { grid-template-columns: 1fr; }
+    .card { padding: 1.5rem; }
+  }
+
+  .slider-wrap label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--p800);
+    margin-bottom: 0.6rem;
+  }
+
+  .slider-wrap label .val {
+    font-family: 'Outfit', monospace;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--p600);
+    background: var(--p50);
+    padding: 2px 10px;
+    border-radius: 100px;
+    min-width: 42px;
+    text-align: center;
+  }
+
+  .slider-desc {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-bottom: 0.8rem;
+    font-weight: 300;
+  }
+
+  input[type=range] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 100px;
+    background: var(--p50);
+    outline: none;
+    cursor: pointer;
+    position: relative;
+  }
+
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--p400);
+    border: 3px solid var(--white);
+    box-shadow: 0 0 0 2px var(--p400);
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+
+  input[type=range]::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+  }
+
+  input[type=range].filled {
+    background: linear-gradient(to right, var(--p400) var(--pct, 50%), var(--p50) var(--pct, 50%));
+  }
+
+  .btn-analyze {
+    display: block;
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--p600), var(--p400));
+    color: var(--white);
+    border: none;
+    border-radius: 14px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-analyze::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.12), transparent);
+  }
+
+  .btn-analyze:hover { opacity: 0.92; transform: translateY(-1px); }
+  .btn-analyze:active { transform: translateY(0) scale(0.99); }
+  .btn-analyze:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  #result-section {
+    margin-top: 2rem;
+    display: none;
+    animation: fadeSlide 0.4s ease both;
+  }
+
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    border-radius: 16px;
+    background: var(--p50);
+    border: 1px solid var(--p100);
+    margin-bottom: 1.5rem;
+  }
+
+  .result-emoji {
+    font-size: 2.4rem;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .result-meta h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.6rem;
+    color: var(--p800);
+    line-height: 1.2;
+  }
+
+  .result-meta .score-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--p400);
+    color: var(--white);
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 3px 12px;
+    border-radius: 100px;
+    margin-top: 6px;
+  }
+
+  .advice-box {
+    background: var(--white);
+    border-left: 4px solid var(--p400);
+    border-radius: 0 12px 12px 0;
+    padding: 1rem 1.2rem;
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.65;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 12px rgba(127,119,221,0.07);
+  }
+
+  .chart-container {
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--p50);
+  }
+
+  .chart-container img {
+    width: 100%;
+    display: block;
+  }
+
+  .chart-label {
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 0.6rem;
+    letter-spacing: 0.04em;
+  }
+
+  .meter-wrap {
+    margin-bottom: 1.5rem;
+  }
+
+  .meter-bar-bg {
+    height: 10px;
+    background: var(--p50);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+
+  .meter-bar-fill {
+    height: 100%;
+    border-radius: 100px;
+    background: linear-gradient(90deg, var(--p200), var(--p600));
+    transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    width: 0%;
+  }
+
+  .meter-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+    font-size: 0.65rem;
+    color: var(--muted);
+  }
+
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 1rem;
+  }
+
+  .pill {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--p50);
+    border: 1px solid var(--p100);
+    border-radius: 100px;
+    padding: 4px 12px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--p600);
+  }
+
+  .pill .pill-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--p400);
+  }
+
+  footer {
+    margin-top: 4rem;
+    padding: 2rem;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--muted);
+    border-top: 1px solid var(--p50);
+  }
+
+  footer strong {
+    color: var(--p600);
+    font-weight: 500;
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: var(--white);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0.18;
+    filter: blur(40px);
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="orb" style="width:300px;height:300px;background:#AFA9EC;top:-80px;left:-60px;"></div>
+  <div class="orb" style="width:200px;height:200px;background:#CECBF6;bottom:-40px;right:-40px;"></div>
+
+  <div style="position:relative;z-index:1;">
+    <div class="hero-tag">🔮 Sistem Fuzzy</div>
+    <h1>Burnout<em>Check</em></h1>
+    <p>Deteksi dini risiko burnout akademik dengan logika fuzzy — bantu dirimu sebelum kelelahan menghampiri.</p>
+    <div class="dots">
+      <div class="dot active"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <div class="card">
+
+    <div class="card-section-title">Parameter Input</div>
+
+    <div class="sliders-grid">
+
+      <!-- Beban Akademik -->
+      <div class="slider-wrap">
+        <label>
+          📚 Beban Akademik
+          <span class="val" id="val-beban">50</span>
+        </label>
+        <p class="slider-desc">Seberapa berat tugas, kuliah, dan tanggung jawab akademikmu saat ini?</p>
+        <input type="range" id="sl-beban" min="0" max="100" value="50"
+               oninput="syncSlider('beban', this.value)" class="filled"/>
+        <div style="display:flex;justify-content:space-between;font-size:0.65rem;color:var(--muted);margin-top:4px;">
+          <span>Ringan</span><span>Berat</span>
+        </div>
+      </div>
+
+      <!-- Kualitas Tidur -->
+      <div class="slider-wrap">
+        <label>
+          😴 Kualitas Tidur
+          <span class="val" id="val-tidur">50</span>
+        </label>
+        <p class="slider-desc">Seberapa baik kualitas tidur dan istirahatmu belakangan ini?</p>
+        <input type="range" id="sl-tidur" min="0" max="100" value="50"
+               oninput="syncSlider('tidur', this.value)" class="filled"/>
+        <div style="display:flex;justify-content:space-between;font-size:0.65rem;color:var(--muted);margin-top:4px;">
+          <span>Sangat buruk</span><span>Sangat baik</span>
+        </div>
+      </div>
+
+      <!-- Dukungan Sosial -->
+      <div class="slider-wrap">
+        <label>
+          🤝 Dukungan Sosial
+          <span class="val" id="val-sosial">50</span>
+        </label>
+        <p class="slider-desc">Seberapa besar dukungan dari teman, keluarga, atau dosen yang kamu rasakan?</p>
+        <input type="range" id="sl-sosial" min="0" max="100" value="50"
+               oninput="syncSlider('sosial', this.value)" class="filled"/>
+        <div style="display:flex;justify-content:space-between;font-size:0.65rem;color:var(--muted);margin-top:4px;">
+          <span>Tidak ada</span><span>Sangat besar</span>
+        </div>
+      </div>
+
+      <!-- Tekanan Waktu -->
+      <div class="slider-wrap">
+        <label>
+          ⏰ Tekanan Waktu
+          <span class="val" id="val-tekanan">50</span>
+        </label>
+        <p class="slider-desc">Seberapa besar tekanan deadline dan keterbatasan waktu yang kamu alami?</p>
+        <input type="range" id="sl-tekanan" min="0" max="100" value="50"
+               oninput="syncSlider('tekanan', this.value)" class="filled"/>
+        <div style="display:flex;justify-content:space-between;font-size:0.65rem;color:var(--muted);margin-top:4px;">
+          <span>Sangat longgar</span><span>Sangat ketat</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Analyze button -->
+    <button class="btn-analyze" id="btn" onclick="analyze()">
+      🔍 Analisis Risiko Burnout
+    </button>
+
+    <!-- ── Result ─────────────────────────────── -->
+    <section id="result-section">
+
+      <div style="height: 1px; background: var(--p50); margin: 2rem 0;"></div>
+      <div class="card-section-title">Hasil Analisis Fuzzy</div>
+
+      <div class="result-header" id="result-header">
+        <div class="result-emoji" id="res-emoji">✨</div>
+        <div class="result-meta">
+          <h2 id="res-label">—</h2>
+          <div class="score-badge" id="res-badge">Nilai: —</div>
+        </div>
+      </div>
+
+      <!-- Meter -->
+      <div class="meter-wrap">
+        <div class="meter-bar-bg">
+          <div class="meter-bar-fill" id="meter-fill"></div>
+        </div>
+        <div class="meter-labels">
+          <span>0 — Sangat Rendah</span>
+          <span>100 — Sangat Tinggi</span>
+        </div>
+      </div>
+
+      <!-- Advice -->
+      <div class="advice-box" id="res-advice"></div>
+
+      <!-- Input pills -->
+      <div class="pills" id="pills"></div>
+
+      <!-- Chart -->
+      <div class="chart-container" style="margin-top:1.5rem;">
+        <img id="res-chart" src="" alt="Grafik fungsi keanggotaan fuzzy"/>
+      </div>
+      <p class="chart-label">Grafik fungsi keanggotaan output — garis putus-putus menunjukkan nilai hasil defuzzifikasi</p>
+
+    </section>
+  </div>
+</main>
+
+<footer>
+  <p>BurnoutCheck &mdash; Sistem Fuzzy Mamdani &bull; Dibangun dengan <strong>scikit-fuzzy</strong> & Python</p>
+  <p style="margin-top:4px;">Variabel input: Beban Akademik · Kualitas Tidur · Dukungan Sosial · Tekanan Waktu</p>
+</footer>
+
+<script>
+  const inputs = {
+    beban:   { val: 50, label: 'Beban Akademik',  low: 'Ringan',       high: 'Berat' },
+    tidur:   { val: 50, label: 'Kualitas Tidur',  low: 'Sangat Buruk', high: 'Sangat Baik' },
+    sosial:  { val: 50, label: 'Dukungan Sosial', low: 'Minim',        high: 'Tinggi' },
+    tekanan: { val: 50, label: 'Tekanan Waktu',   low: 'Longgar',      high: 'Ketat' },
+  };
+
+  function syncSlider(key, raw) {
+    const v = parseInt(raw, 10);
+    inputs[key].val = v;
+    document.getElementById('val-' + key).textContent = v;
+    const sl = document.getElementById('sl-' + key);
+    sl.style.setProperty('--pct', v + '%');
+  }
+
+  Object.keys(inputs).forEach(k => syncSlider(k, inputs[k].val));
+
+  async function analyze() {
+    const btn = document.getElementById('btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Menganalisis…';
+
+    const p = new URLSearchParams({
+      beban:   inputs.beban.val,
+      tidur:   inputs.tidur.val,
+      sosial:  inputs.sosial.val,
+      tekanan: inputs.tekanan.val,
+    });
+
+    try {
+      const res  = await fetch('/hitung?' + p);
+      const data = await res.json();
+      renderResult(data);
+    } catch (e) {
+      alert('Gagal menghubungi server. Pastikan server.py berjalan di port 8080.');
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '🔍 Analisis Ulang';
+  }
+
+  function renderResult(d) {
+    const sec = document.getElementById('result-section');
+    sec.style.display = 'block';
+    sec.style.animation = 'none';
+    void sec.offsetWidth;
+    sec.style.animation = '';
+
+    document.getElementById('res-emoji').textContent  = d.emoji;
+    document.getElementById('res-label').textContent  = 'Risiko Burnout ' + d.label;
+    document.getElementById('res-badge').textContent  = 'Nilai Fuzzy: ' + d.nilai;
+    document.getElementById('res-advice').textContent = d.advice;
+    document.getElementById('res-chart').src          = 'data:image/png;base64,' + d.chart;
+
+    setTimeout(() => {
+      document.getElementById('meter-fill').style.width = d.nilai + '%';
+    }, 80);
+
+    const pillData = [
+      { key: 'beban',   label: 'Beban Akademik',  emoji: '📚' },
+      { key: 'tidur',   label: 'Kualitas Tidur',  emoji: '😴' },
+      { key: 'sosial',  label: 'Dukungan Sosial', emoji: '🤝' },
+      { key: 'tekanan', label: 'Tekanan Waktu',   emoji: '⏰' },
+    ];
+    document.getElementById('pills').innerHTML = pillData.map(p =>
+      `<div class="pill"><span class="pill-dot"></span>${p.emoji} ${p.label}: <strong>${inputs[p.key].val}</strong></div>`
+    ).join('');
+
+    setTimeout(() => sec.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
+  }
+</script>
+
+</body>
+</html>
