@@ -47,7 +47,7 @@ BurnoutCheck menggunakan metode **Fuzzy Mamdani** untuk mendeteksi dini risiko b
 ## 📁 Struktur Proyek
 
 ```
-sistem_fuzzy/
+ResponsiSistemFuzzy/
 ├── fuzzy_burnout.py   # Logika fuzzy (scikit-fuzzy)
 ├── server.py          # Web server Python sederhana
 └── static/
@@ -61,8 +61,8 @@ sistem_fuzzy/
 ### 1. Clone repository
 
 ```bash
-git clone https://github.com/username/burnout-fuzzy.git
-cd sistem_fuzzy
+git clone https://github.com/saniaprl/H1D024011-PraktikumKB-ResponsiSistemFuzzy.git
+cd ResponsiSistemFuzzy
 ```
 
 ### 2. Install dependencies
@@ -74,7 +74,7 @@ pip install numpy scikit-fuzzy matplotlib
 ### 3. Jalankan server
 
 ```bash
-cd burnout_fuzzy
+cd ResponsiSistemFuzzy
 python server.py
 ```
 
